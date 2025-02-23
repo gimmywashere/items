@@ -1,0 +1,95 @@
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 2
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.Text = "Gears in the Game"
+title.Parent = frame
+
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -40)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 35)
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollingFrame.ScrollBarThickness = 8
+scrollingFrame.Parent = frame
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = scrollingFrame
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function giveGearToPlayer(gear)
+    if player and player:FindFirstChild("Backpack") then
+        local backpack = player.Backpack
+        local gearClone = gear:Clone()
+        gearClone.Parent = backpack
+        print("Cloned " .. gear.Name .. " into " .. player.Name .. "'s backpack!")
+    else
+        warn("Backpack not found for player " .. player.Name)
+    end
+end
+
+local function updateGearList()
+    for _, child in pairs(scrollingFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    local count = 0
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("Tool") and obj:FindFirstChild("Handle") then
+            count = count + 1
+            local gearButton = Instance.new("TextButton")
+            gearButton.Size = UDim2.new(1, 0, 0, 30)
+            gearButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            gearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            gearButton.Font = Enum.Font.SourceSansBold
+            gearButton.TextSize = 16
+            gearButton.Text = obj.Name
+            gearButton.Parent = scrollingFrame
+
+            gearButton.MouseButton1Click:Connect(function()
+                giveGearToPlayer(obj)
+            end)
+        end
+    end
+
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 35)
+end
+
+updateGearList()
+
+game.DescendantAdded:Connect(function(obj)
+    if obj:IsA("Tool") and obj:FindFirstChild("Handle") then
+        updateGearList()
+    end
+end)
+
+game.DescendantRemoving:Connect(function(obj)
+    if obj:IsA("Tool") then
+        updateGearList()
+    end
+end)
+
+local UIS = game:GetService("UserInputService")
+local guiVisible = true
+
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.X then
+        guiVisible = not guiVisible
+        screenGui.Enabled = guiVisible
+    end
+end)
