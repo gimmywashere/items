@@ -3,41 +3,49 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 400)
-frame.Position = UDim2.new(0, 10, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-frame.BorderSizePixel = 2
+frame.Size = UDim2.new(0, 320, 0, 450)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BackgroundTransparency = 0.1
+frame.BorderSizePixel = 0
 frame.Parent = screenGui
 
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 10)
+uiCorner.Parent = frame
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 30)
-title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Font = Enum.Font.SourceSansBold
+title.Font = Enum.Font.GothamBold
 title.TextSize = 20
 title.Text = "Gears in the Game"
 title.Parent = frame
 
 local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, 0, 1, -40)
-scrollingFrame.Position = UDim2.new(0, 0, 0, 35)
+scrollingFrame.Size = UDim2.new(1, 0, 1, -90)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 45)
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-scrollingFrame.ScrollBarThickness = 8
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollingFrame.BackgroundTransparency = 0.2
+scrollingFrame.ScrollBarThickness = 5
 scrollingFrame.Parent = frame
+
+local uiCornerScroll = Instance.new("UICorner")
+uiCornerScroll.CornerRadius = UDim.new(0, 10)
+uiCornerScroll.Parent = scrollingFrame
 
 local listLayout = Instance.new("UIListLayout")
 listLayout.Parent = scrollingFrame
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 5)
 
 local function giveGearToPlayer(gear)
     if player and player:FindFirstChild("Backpack") then
         local backpack = player.Backpack
         local gearClone = gear:Clone()
         gearClone.Parent = backpack
-        print("Cloned " .. gear.Name .. " into " .. player.Name .. "'s backpack!")
-    else
-        warn("Backpack not found for player " .. player.Name)
     end
 end
 
@@ -53,13 +61,17 @@ local function updateGearList()
         if obj:IsA("Tool") and obj:FindFirstChild("Handle") then
             count = count + 1
             local gearButton = Instance.new("TextButton")
-            gearButton.Size = UDim2.new(1, 0, 0, 30)
+            gearButton.Size = UDim2.new(1, -10, 0, 35)
             gearButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
             gearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            gearButton.Font = Enum.Font.SourceSansBold
+            gearButton.Font = Enum.Font.Gotham
             gearButton.TextSize = 16
             gearButton.Text = obj.Name
             gearButton.Parent = scrollingFrame
+
+            local buttonCorner = Instance.new("UICorner")
+            buttonCorner.CornerRadius = UDim.new(0, 6)
+            buttonCorner.Parent = gearButton
 
             gearButton.MouseButton1Click:Connect(function()
                 giveGearToPlayer(obj)
@@ -67,7 +79,7 @@ local function updateGearList()
         end
     end
 
-    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 35)
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, count * 40)
 end
 
 updateGearList()
@@ -91,5 +103,29 @@ UIS.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.X then
         guiVisible = not guiVisible
         screenGui.Enabled = guiVisible
+    end
+end)
+
+local clearButton = Instance.new("TextButton")
+clearButton.Size = UDim2.new(1, -10, 0, 45)
+clearButton.Position = UDim2.new(0, 5, 1, -50)
+clearButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearButton.Font = Enum.Font.GothamBold
+clearButton.TextSize = 18
+clearButton.Text = "Clear Inv"
+clearButton.Parent = frame
+
+local clearButtonCorner = Instance.new("UICorner")
+clearButtonCorner.CornerRadius = UDim.new(0, 8)
+clearButtonCorner.Parent = clearButton
+
+clearButton.MouseButton1Click:Connect(function()
+    if player and player:FindFirstChild("Backpack") then
+        for _, item in pairs(player.Backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                item:Destroy()
+            end
+        end
     end
 end)
