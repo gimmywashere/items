@@ -41,6 +41,8 @@ listLayout.Parent = scrollingFrame
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 listLayout.Padding = UDim.new(0, 5)
 
+local addedGears = {}
+
 local function giveGearToPlayer(gear)
     if player and player:FindFirstChild("Backpack") then
         local backpack = player.Backpack
@@ -57,25 +59,30 @@ local function updateGearList()
     end
 
     local count = 0
+    addedGears = {}
+
     for _, obj in pairs(game:GetDescendants()) do
         if obj:IsA("Tool") and obj:FindFirstChild("Handle") then
-            count = count + 1
-            local gearButton = Instance.new("TextButton")
-            gearButton.Size = UDim2.new(1, -10, 0, 35)
-            gearButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-            gearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            gearButton.Font = Enum.Font.Gotham
-            gearButton.TextSize = 16
-            gearButton.Text = obj.Name
-            gearButton.Parent = scrollingFrame
+            if not addedGears[obj] then
+                addedGears[obj] = true
+                count = count + 1
+                local gearButton = Instance.new("TextButton")
+                gearButton.Size = UDim2.new(1, -10, 0, 35)
+                gearButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+                gearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                gearButton.Font = Enum.Font.Gotham
+                gearButton.TextSize = 16
+                gearButton.Text = obj.Name
+                gearButton.Parent = scrollingFrame
 
-            local buttonCorner = Instance.new("UICorner")
-            buttonCorner.CornerRadius = UDim.new(0, 6)
-            buttonCorner.Parent = gearButton
+                local buttonCorner = Instance.new("UICorner")
+                buttonCorner.CornerRadius = UDim.new(0, 6)
+                buttonCorner.Parent = gearButton
 
-            gearButton.MouseButton1Click:Connect(function()
-                giveGearToPlayer(obj)
-            end)
+                gearButton.MouseButton1Click:Connect(function()
+                    giveGearToPlayer(obj)
+                end)
+            end
         end
     end
 
